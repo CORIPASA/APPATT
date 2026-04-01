@@ -1,0 +1,5 @@
+{
+  "name": "Sistema de Calificación de Atención",
+  "description": "Una aplicación para capturar y calificar la atención al cliente, con seguimiento de tiempos y reportes.",
+  "requestFramePermissions": []
+}

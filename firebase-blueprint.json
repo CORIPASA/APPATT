@@ -1,0 +1,27 @@
+{
+  "entities": {
+    "ServiceRequest": {
+      "title": "Service Request",
+      "description": "A request for service from a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the request." },
+        "user": { "type": "string", "description": "The name of the user requesting service." },
+        "department": { "type": "string", "description": "The department of the user." },
+        "problem": { "type": "string", "description": "The description of the problem." },
+        "requestTime": { "type": "number", "description": "The timestamp when the request was made." },
+        "startTime": { "type": "number", "description": "The timestamp when the service started." },
+        "endTime": { "type": "number", "description": "The timestamp when the service ended." },
+        "rating": { "type": "string", "enum": ["happy", "neutral", "sad"], "description": "The rating given by the user." },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed"], "description": "The status of the request." }
+      },
+      "required": ["id", "user", "department", "problem", "requestTime", "status"]
+    }
+  },
+  "firestore": {
+    "/requests/{requestId}": {
+      "schema": "ServiceRequest",
+      "description": "Collection of service requests."
+    }
+  }
+}

@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: requests
+    // Document ID: {requestId}
+    // Fields:
+    //   - id: string (required)
+    //   - user: string (required, size < 100)
+    //   - department: string (required, size < 100)
+    //   - problem: string (required, size < 1000)
+    //   - requestTime: number (required)
+    //   - startTime: number (optional)
+    //   - endTime: number (optional)
+    //   - rating: string (optional, enum: ['happy', 'neutral', 'sad'])
+    //   - status: string (required, enum: ['pending', 'in-progress', 'completed'])
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function isValidRequest(data) {
+      let requiredFields = ['id', 'user', 'department', 'problem', 'requestTime', 'status'];
+      let allowedFields = ['id', 'user', 'department', 'problem', 'requestTime', 'startTime', 'endTime', 'rating', 'status'];
+      let validStatuses = ['pending', 'in-progress', 'completed'];
+      let validRatings = ['happy', 'neutral', 'sad'];
+
+      return hasRequiredFields(data, requiredFields) &&
+             hasOnlyAllowedFields(data, allowedFields) &&
+             data.id is string &&
+             data.user is string && data.user.size() > 0 && data.user.size() < 100 &&
+             data.department is string && data.department.size() > 0 && data.department.size() < 100 &&
+             data.problem is string && data.problem.size() > 0 && data.problem.size() < 1000 &&
+             data.requestTime is number &&
+             data.status in validStatuses &&
+             (!('startTime' in data) || data.startTime is number) &&
+             (!('endTime' in data) || data.endTime is number) &&
+             (!('rating' in data) || data.rating in validRatings);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /requests/{requestId} {
+      allow read, delete: if true;
+      allow create, update: if isValidRequest(request.resource.data);
+    }
+    
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
